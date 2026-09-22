@@ -13,6 +13,7 @@ import {
   getBlogPosts,
   blogPosts,
 } from '@/lib/blogs';
+import { resolveDestinationPath } from '@/lib/destinations';
 
 type BlogDetailPageProps = {
   params: Promise<{ slug: string }>;
@@ -240,11 +241,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
 
               <div className="flex flex-col gap-3 border-t border-surface/15 p-6 sm:p-8 lg:border-t-0 lg:border-l lg:border-surface/15">
                 <Link
-                  href={
-                    post.destination
-                      ? `/tour?q=${encodeURIComponent(post.destination.split(' ')[0] ?? post.destination)}`
-                      : '/tour'
-                  }
+                  href={resolveDestinationPath(post.destination)}
                   className="group flex flex-1 flex-col justify-between rounded-md border border-highlight/50 bg-[rgb(197_212_168_/_0.22)] px-5 py-6 text-surface shadow-[inset_0_1px_0_rgb(255_255_255_/_0.12)] backdrop-blur-md transition-colors duration-300 hover:bg-[rgb(197_212_168_/_0.35)]"
                 >
                   <div>
@@ -252,7 +249,9 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                       Browse
                     </p>
                     <h3 className="mt-2 text-xl font-medium tracking-[-0.02em]">
-                      Explore tours
+                      {post.destination
+                        ? `Packages in ${post.destination}`
+                        : 'Explore destinations'}
                     </h3>
                     <p className="mt-2 text-sm leading-6 text-surface/75">
                       See journeys that match this field note&apos;s place and
@@ -260,7 +259,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                     </p>
                   </div>
                   <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-highlight">
-                    View tours
+                    View packages
                     <ArrowRight
                       size={15}
                       className="transition-transform duration-300 group-hover:translate-x-0.5"

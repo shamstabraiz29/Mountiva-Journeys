@@ -17,10 +17,13 @@ import {
   getTourById,
   getTourScenes,
   getTourStays,
+  primaryStyle,
   tours,
   type Tour,
   type TourStay,
 } from '@/lib/tours';
+import { getDestinationHref } from '@/lib/destinations';
+import { getTravelStyleHref, styleToSlug } from '@/lib/travel-styles';
 
 type TourDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -48,13 +51,7 @@ function priceLabel(amount: number) {
   return formatPrice(amount).replace(/^From /, '');
 }
 
-function EnquirePanel({
-  tour,
-  stays,
-}: {
-  tour: Tour;
-  stays: TourStay[];
-}) {
+function EnquirePanel({ tour, stays }: { tour: Tour; stays: TourStay[] }) {
   return (
     <div className="border border-accent/12 bg-surface">
       <div className="border-b border-accent/10 px-5 py-6 sm:px-6">
@@ -101,10 +98,13 @@ function EnquirePanel({
         {[
           ['Difficulty', tour.difficulty],
           ['Group size', tour.groupSize],
-          ['Style', tour.style],
+          ['Style', tour.styles.join(', ')],
           ['Region', tour.region],
         ].map(([label, value]) => (
-          <div key={label} className="flex items-baseline justify-between gap-4 py-3.5">
+          <div
+            key={label}
+            className="flex items-baseline justify-between gap-4 py-3.5"
+          >
             <dt className="text-[11px] font-medium tracking-[0.14em] text-accent uppercase">
               {label}
             </dt>
@@ -118,8 +118,12 @@ function EnquirePanel({
           Compare stays
           <ArrowRight size={16} aria-hidden />
         </Button>
-        <Button href="/tour" variant="secondary" size="lg">
-          Browse more tours
+        <Button
+          href={getDestinationHref(tour.destinationSlug)}
+          variant="secondary"
+          size="lg"
+        >
+          More in {tour.destination}
         </Button>
         <p className="text-[13px] leading-5 text-muted-foreground">
           Essential, Signature, or Private — same route, three ways to stay.
@@ -140,8 +144,16 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
   const signatureStay = stays.find((stay) => stay.recommended) ?? stays[1];
   const enquireHref = getStayEnquireHref(tour, signatureStay);
   const facts = [
-    { label: 'Duration', value: String(tour.days).padStart(2, '0'), hint: formatDays(tour.days) },
-    { label: 'Difficulty', value: tour.difficulty, hint: `${tour.style} pace` },
+    {
+      label: 'Duration',
+      value: String(tour.days).padStart(2, '0'),
+      hint: formatDays(tour.days),
+    },
+    {
+      label: 'Difficulty',
+      value: tour.difficulty,
+      hint: `${primaryStyle(tour)} pace`,
+    },
     { label: 'Group', value: tour.groupSize, hint: 'travellers' },
     { label: 'From', value: priceLabel(tour.priceFrom), hint: 'per person' },
   ] as const;
@@ -152,7 +164,7 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
         <PageHero
           priority
           size="full"
-          eyebrow={`${tour.style} · ${tour.region}`}
+          eyebrow={`${primaryStyle(tour)} · ${tour.region}`}
           title={tour.destination}
           headline={tour.name}
           description={tour.summary}
@@ -161,7 +173,6 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
           navLabel="Tour sections"
           nav={[
             { href: '#overview', label: 'Overview' },
-            { href: '#route', label: 'Route' },
             { href: '#itinerary', label: 'Itinerary' },
             { href: '#stay', label: 'Stay' },
             { href: '#enquire', label: 'Enquire' },
@@ -185,13 +196,18 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
                 <p className="mt-3 text-2xl font-medium tracking-[-0.04em] sm:text-3xl">
                   {fact.value}
                 </p>
-                <p className="mt-1.5 text-sm text-muted-foreground">{fact.hint}</p>
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                  {fact.hint}
+                </p>
               </article>
             ))}
           </div>
         </section>
 
-        <section id="overview" className="scroll-mt-28 px-5 py-16 sm:px-6 sm:py-24">
+        <section
+          id="overview"
+          className="scroll-mt-28 px-5 py-16 sm:px-6 sm:py-24"
+        >
           <div className="mx-auto max-w-7xl">
             <ChapterMark index={1} label="Overview" />
 
@@ -199,7 +215,9 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
               <div>
                 <h2 className="text-3xl font-medium tracking-[-0.035em] sm:text-4xl md:text-5xl md:leading-[1.1]">
                   {tour.days} days through {tour.destination}.
-                  <span className="mt-2 block text-accent">Unhurried, well hosted.</span>
+                  <span className="mt-2 block text-accent">
+                    Unhurried, well hosted.
+                  </span>
                 </h2>
                 <p className="mt-8 text-lg font-medium leading-8 tracking-[-0.02em] text-foreground sm:text-xl sm:leading-9">
                   {tour.summary}
@@ -207,6 +225,23 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
                 <p className="mt-6 text-[15px] leading-7 text-foreground/75 sm:text-base sm:leading-8">
                   {tour.overview}
                 </p>
+                <div className="mt-8 flex flex-wrap gap-2">
+                  <Link
+                    href={getDestinationHref(tour.destinationSlug)}
+                    className="rounded-md border border-accent/15 bg-surface px-3 py-1.5 text-sm font-medium text-foreground/75 transition-colors hover:border-accent/35 hover:text-foreground"
+                  >
+                    {tour.destination}
+                  </Link>
+                  {tour.styles.map((style) => (
+                    <Link
+                      key={style}
+                      href={getTravelStyleHref(styleToSlug(style))}
+                      className="rounded-md border border-accent/15 bg-surface px-3 py-1.5 text-sm font-medium text-foreground/75 transition-colors hover:border-accent/35 hover:text-foreground"
+                    >
+                      {style}
+                    </Link>
+                  ))}
+                </div>
               </div>
 
               <aside className="space-y-4 lg:sticky lg:top-28">
@@ -227,7 +262,8 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
                       {tour.destination}
                     </p>
                     <p className="mt-2 text-sm leading-6 text-surface/80">
-                      {tour.region} · {tour.style} · {formatDays(tour.days)}
+                      {tour.region} · {tour.styles.join(' · ')} ·{' '}
+                      {formatDays(tour.days)}
                     </p>
                   </div>
                 </div>
@@ -238,56 +274,11 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
         </section>
 
         <section
-          id="route"
-          className="scroll-mt-28 border-y border-accent/10 bg-surface px-5 py-16 sm:px-6 sm:py-24"
+          id="itinerary"
+          className="scroll-mt-28 border-t border-accent/10 px-5 py-16 sm:px-6 sm:py-24"
         >
           <div className="mx-auto max-w-7xl">
-            <ChapterMark index={2} label="Route" />
-
-            <div className="mb-10 flex flex-col gap-4 sm:mb-12 sm:flex-row sm:items-end sm:justify-between">
-              <h2 className="max-w-md text-3xl font-medium tracking-[-0.03em] sm:text-4xl">
-                Stops that shape the days
-              </h2>
-              <p className="max-w-sm text-sm leading-6 text-muted-foreground sm:text-[15px]">
-                Signature viewpoints and valley moments on this {tour.style.toLowerCase()}{' '}
-                journey — the frames you came north for.
-              </p>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
-              {scenes.map((scene, index) => (
-                <article
-                  key={scene.label}
-                  className="group relative min-h-[20rem] overflow-hidden rounded-md sm:min-h-[24rem]"
-                >
-                  <Image
-                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    src={scene.image}
-                    alt={scene.label}
-                    fill
-                    sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 25vw"
-                  />
-                  <div
-                    aria-hidden
-                    className="absolute inset-0 bg-[linear-gradient(to_top,rgb(12_20_16/0.82)_0%,rgb(12_20_16/0.2)_55%,transparent_100%)]"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 p-5 text-surface">
-                    <span className="text-[12px] font-medium tracking-[0.12em] text-highlight/80 tabular-nums">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                    <h3 className="mt-2 text-xl font-medium tracking-[-0.02em]">
-                      {scene.label}
-                    </h3>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="itinerary" className="scroll-mt-28 px-5 py-16 sm:px-6 sm:py-24">
-          <div className="mx-auto max-w-7xl">
-            <ChapterMark index={3} label="Itinerary" />
+            <ChapterMark index={2} label="Itinerary" />
 
             <div className="mb-10 max-w-2xl sm:mb-12">
               <h2 className="text-3xl font-medium tracking-[-0.03em] sm:text-4xl">
@@ -329,7 +320,7 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
           className="scroll-mt-28 border-y border-accent/10 bg-surface px-5 py-16 sm:px-6 sm:py-24"
         >
           <div className="mx-auto max-w-7xl">
-            <ChapterMark index={4} label="Stay" />
+            <ChapterMark index={3} label="Stay" />
 
             <div className="mb-10 flex flex-col gap-4 sm:mb-12 sm:flex-row sm:items-end sm:justify-between">
               <h2 className="max-w-md text-3xl font-medium tracking-[-0.03em] sm:text-4xl">
@@ -414,7 +405,7 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
           className="scroll-mt-28 border-y border-accent/10 bg-surface px-5 py-16 sm:px-6 sm:py-24"
         >
           <div className="mx-auto max-w-7xl">
-            <ChapterMark index={5} label="Included" />
+            <ChapterMark index={4} label="Included" />
 
             <div className="mb-10 max-w-2xl sm:mb-12">
               <h2 className="text-3xl font-medium tracking-[-0.03em] sm:text-4xl">
@@ -499,7 +490,10 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
           </div>
         </section>
 
-        <section id="enquire" className="scroll-mt-28 px-5 py-16 sm:px-6 sm:py-20">
+        <section
+          id="enquire"
+          className="scroll-mt-28 px-5 py-16 sm:px-6 sm:py-20"
+        >
           <div className="relative mx-auto max-w-7xl overflow-hidden rounded-md text-surface">
             <Image
               className="object-cover object-center"
@@ -568,7 +562,7 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
                 </Link>
 
                 <Link
-                  href={`/tour?q=${encodeURIComponent(tour.destination)}`}
+                  href={getDestinationHref(tour.destinationSlug)}
                   className="group flex flex-1 flex-col justify-between rounded-md border border-surface/25 bg-surface/15 px-5 py-6 text-surface backdrop-blur-md transition-colors duration-300 hover:bg-surface/25"
                 >
                   <div>
@@ -584,7 +578,7 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
                     </p>
                   </div>
                   <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-highlight">
-                    View matching tours
+                    View matching packages
                     <ArrowRight
                       size={15}
                       className="transition-transform duration-300 group-hover:translate-x-0.5"
@@ -605,10 +599,10 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
             <div className="mx-auto max-w-7xl">
               <SectionHeader
                 eyebrow="Keep exploring"
-                title="Related tours"
-                description={`Other ${tour.style.toLowerCase()} and ${tour.region} journeys if this outline is close — but not quite it.`}
+                title="Related packages"
+                description={`Other ${primaryStyle(tour).toLowerCase()} and ${tour.region} journeys if this outline is close — but not quite it.`}
                 action={{
-                  href: `/tour?q=${encodeURIComponent(tour.destination)}`,
+                  href: getDestinationHref(tour.destinationSlug),
                   label: `More in ${tour.destination}`,
                 }}
               />

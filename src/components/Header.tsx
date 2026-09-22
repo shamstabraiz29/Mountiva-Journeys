@@ -1,54 +1,98 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { ArrowRight, Leaf, Menu, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { ArrowRight, Leaf, Menu, Search, X } from 'lucide-react';
+import { useEffect, useState, type FormEvent } from 'react';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from '@/components/ui/input-group';
+import { cn } from '@/lib/utils';
+
+import { resolveDestinationPath } from '@/lib/destinations';
 
 const navLinks = [
   { href: '/', label: 'Home' },
-  { href: '/tour', label: 'Tour' },
+  { href: '/destinations', label: 'Destinations' },
+  { href: '/travel-styles', label: 'Travel Styles' },
   { href: '/about', label: 'About' },
-  { href: '/faq', label: 'FAQ' },
   { href: '/contact-us', label: 'Contact Us' },
   { href: '/blogs', label: 'Blogs' },
 ] as const;
 
-function AuthSwitch({
+function HeaderSearch({
   onDark,
-  onNavigate,
+  className,
 }: {
   onDark?: boolean;
-  onNavigate?: () => void;
+  className?: string;
 }) {
+  const router = useRouter();
+  const [query, setQuery] = useState('');
+
+  function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const value = query.trim();
+    router.push(resolveDestinationPath(value));
+  }
+
   return (
-    <div
-      className={`inline-flex items-center rounded-full border bg-transparent p-1 backdrop-blur-md ${
-        onDark ? 'border-highlight/40' : 'border-accent/40'
-      }`}
+    <form
+      onSubmit={onSubmit}
+      role="search"
+      className={cn('group min-w-0', className)}
     >
-      <Link
-        href="/auth/signin"
-        onClick={onNavigate}
-        className={`rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
+      <InputGroup
+        className={cn(
+          'h-10 overflow-visible rounded-full shadow-none transition-[border-color,background-color,box-shadow] duration-200',
           onDark
-            ? 'text-surface/85 hover:text-surface'
-            : 'text-accent hover:text-foreground'
-        }`}
+            ? 'border-white/20 bg-white/10 has-[[data-slot=input-group-control]:focus-visible]:border-highlight/55 has-[[data-slot=input-group-control]:focus-visible]:ring-highlight/30'
+            : 'border-accent/18 bg-background/80 has-[[data-slot=input-group-control]:focus-visible]:border-accent/45',
+        )}
       >
-        Login
-      </Link>
-      <Link
-        href="/auth/signup"
-        onClick={onNavigate}
-        className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-opacity hover:opacity-90 ${
-          onDark ? 'bg-highlight text-foreground' : 'bg-accent text-surface'
-        }`}
-      >
-        Sign up
-        <ArrowRight size={13} strokeWidth={2.25} aria-hidden />
-      </Link>
-    </div>
+        <InputGroupAddon
+          className={cn('pl-3', onDark ? 'text-highlight' : 'text-accent')}
+        >
+          <Search className="size-4" aria-hidden />
+        </InputGroupAddon>
+        <InputGroupInput
+          type="search"
+          name="q"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search destinations"
+          aria-label="Search destinations"
+          autoComplete="off"
+          className={cn(
+            'h-10 text-sm [&::-webkit-search-cancel-button]:hidden',
+            onDark
+              ? 'text-surface placeholder:text-surface/45'
+              : 'text-foreground placeholder:text-muted-foreground',
+          )}
+        />
+        <InputGroupAddon align="inline-end" className="overflow-visible pr-4">
+          <InputGroupButton
+            type="submit"
+            size="icon-xs"
+            aria-label="Search destinations"
+            className={cn(
+              'header-search-cta size-7 rounded-full group-focus-within:animate-none',
+              onDark
+                ? 'bg-highlight text-foreground hover:bg-[#d4e0bc] hover:text-foreground'
+                : 'bg-accent text-surface hover:bg-accent/90 hover:text-surface',
+            )}
+          >
+            <ArrowRight
+              className="header-search-cta-arrow size-3.5"
+              aria-hidden
+            />
+          </InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
+    </form>
   );
 }
 
@@ -57,6 +101,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const isAuthRoute = pathname.startsWith('/auth');
+  const isAdminRoute = pathname.startsWith('/admin');
   const darkHeroPaths = new Set([
     '/',
     '/about',
@@ -64,11 +109,15 @@ export default function Header() {
     '/contact-us',
     '/blogs',
     '/tour',
+    '/destinations',
+    '/travel-styles',
   ]);
   const hasDarkHero =
     darkHeroPaths.has(pathname) ||
     pathname.startsWith('/blogs/') ||
-    pathname.startsWith('/tour/');
+    pathname.startsWith('/tour/') ||
+    pathname.startsWith('/destinations/') ||
+    pathname.startsWith('/travel-styles/');
   const onDark = hasDarkHero && !scrolled && !open;
 
   useEffect(() => {
@@ -82,7 +131,7 @@ export default function Header() {
     setOpen(false);
   }, [pathname]);
 
-  if (isAuthRoute) return null;
+  if (isAuthRoute || isAdminRoute) return null;
 
   return (
     <header className="sticky top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
@@ -93,10 +142,11 @@ export default function Header() {
             : 'border-accent/15 bg-surface/90 shadow-[0_8px_28px_rgb(31_41_35_/_0.08)] backdrop-blur-xl'
         }`}
       >
-        <nav className="flex h-16 items-center justify-between gap-4 px-4 sm:px-5">
+        <nav className="flex h-16 items-center gap-3 px-4 sm:gap-4 sm:px-5 lg:justify-between">
           <Link
             href="/"
-            className="group flex shrink-0 items-center gap-2.5"
+            aria-label="Mountiva Journeys"
+            className="group flex size-9 shrink-0 items-center gap-2.5 xl:size-auto"
             onClick={() => setOpen(false)}
           >
             <span
@@ -108,7 +158,7 @@ export default function Header() {
             >
               <Leaf size={16} aria-hidden />
             </span>
-            <span className="flex flex-col leading-none">
+            <span className="hidden flex-col leading-none xl:flex">
               <span
                 className={`text-[15px] font-semibold tracking-[-0.03em] ${
                   onDark ? 'text-surface' : 'text-foreground'
@@ -126,7 +176,26 @@ export default function Header() {
             </span>
           </Link>
 
-          <div className="hidden items-center gap-5 md:flex">
+          <HeaderSearch
+            onDark={onDark}
+            className="min-w-0 flex-1 xl:order-last xl:w-72 xl:flex-none"
+          />
+
+          <button
+            type="button"
+            className={`inline-flex size-9 shrink-0 items-center justify-center rounded-xl border transition-colors xl:hidden ${
+              onDark
+                ? 'border-highlight bg-transparent text-highlight'
+                : 'border-accent bg-transparent text-accent hover:bg-accent/5'
+            }`}
+            aria-expanded={open}
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            onClick={() => setOpen((value) => !value)}
+          >
+            {open ? <X size={17} /> : <Menu size={17} />}
+          </button>
+
+          <div className="hidden items-center gap-4 xl:flex">
             {navLinks.map(({ href, label }) => {
               const active =
                 href === '/'
@@ -156,30 +225,10 @@ export default function Header() {
               );
             })}
           </div>
-
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:block">
-              <AuthSwitch onDark={onDark} />
-            </div>
-
-            <button
-              type="button"
-              className={`inline-flex size-9 items-center justify-center rounded-xl border transition-colors md:hidden ${
-                onDark
-                  ? 'border-highlight bg-transparent text-highlight'
-                  : 'border-accent bg-transparent text-accent hover:bg-accent/5'
-              }`}
-              aria-expanded={open}
-              aria-label={open ? 'Close menu' : 'Open menu'}
-              onClick={() => setOpen((value) => !value)}
-            >
-              {open ? <X size={17} /> : <Menu size={17} />}
-            </button>
-          </div>
         </nav>
 
         {open ? (
-          <div className="border-t border-accent/15 bg-surface px-4 py-4 md:hidden">
+          <div className="border-t border-accent/15 bg-surface px-4 py-4 xl:hidden">
             <div className="flex flex-col gap-1">
               {navLinks.map(({ href, label }) => {
                 const active =
@@ -201,9 +250,6 @@ export default function Header() {
                   </Link>
                 );
               })}
-            </div>
-            <div className="mt-4 flex justify-center border-t border-accent/15 pt-4 sm:hidden">
-              <AuthSwitch onNavigate={() => setOpen(false)} />
             </div>
           </div>
         ) : null}

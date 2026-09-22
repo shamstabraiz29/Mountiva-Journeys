@@ -11,7 +11,8 @@ export type Season = {
   image?: string;
   /** Soft Mountiva wash for the card face */
   tone?: 'spring' | 'summer' | 'autumn' | 'winter';
-  /** When set, CTA uses this instead of /tour?month= */
+  /** When set, CTA uses this instead of /destinations */
+  href?: string;
   href?: string;
   ctaLabel?: string;
 };
@@ -53,11 +54,9 @@ export default function SeasonCard({
   index = 0,
   className,
 }: SeasonCardProps) {
-  const href =
-    season.href ??
-    `/tour?month=${encodeURIComponent(season.months[0] ?? 'any')}`;
+  const href = season.href ?? '/destinations';
   const ctaLabel =
-    season.ctaLabel ?? `View ${season.name.toLowerCase()} tours`;
+    season.ctaLabel ?? `View ${season.name.toLowerCase()} destinations`;
   const tone = toneStyles[season.tone ?? 'spring'];
   const number = String(index + 1).padStart(2, '0');
 
@@ -92,30 +91,17 @@ export default function SeasonCard({
         </p>
 
         <div className="mt-4 flex flex-wrap gap-1.5">
-          {season.months.map((month) =>
-            season.href ? (
-              <span
-                key={month}
-                className={cn(
-                  'rounded-md px-2.5 py-1 text-[12px] font-medium',
-                  tone.chip
-                )}
-              >
-                {month}
-              </span>
-            ) : (
-              <Link
-                key={month}
-                href={`/tour?month=${encodeURIComponent(month)}`}
-                className={cn(
-                  'rounded-md px-2.5 py-1 text-[12px] font-medium transition-colors hover:bg-accent hover:text-surface',
-                  tone.chip
-                )}
-              >
-                {month}
-              </Link>
-            )
-          )}
+          {season.months.map((month) => (
+            <span
+              key={month}
+              className={cn(
+                'rounded-md px-2.5 py-1 text-[12px] font-medium',
+                tone.chip
+              )}
+            >
+              {month}
+            </span>
+          ))}
         </div>
 
         <p className="mt-5 flex-1 text-sm leading-6 text-muted-foreground">

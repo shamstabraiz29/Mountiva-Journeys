@@ -1,15 +1,42 @@
-export type TourStyle = 'Valley' | 'Trek' | 'Adventure' | 'Culture';
+import {
+  destinations,
+  getDestinationByName,
+  getDestinationBySlug,
+  type Destination,
+} from '@/lib/destinations';
+import { getTravelStyleByName, type TourStyle } from '@/lib/travel-styles';
+
+export type { Destination, TourStyle };
+export {
+  destinations,
+  getDestinationByName,
+  getDestinationBySlug,
+  getDestinationHref,
+  getFeaturedDestinations,
+  resolveDestinationPath,
+} from '@/lib/destinations';
+export {
+  getTravelStyleByName,
+  getTravelStyleBySlug,
+  getTravelStyleHref,
+  styleToSlug,
+  tourStyles,
+  travelStyles,
+  type TravelStyle,
+} from '@/lib/travel-styles';
+
 export type TourDifficulty = 'Easy' | 'Moderate' | 'Challenging';
 
 export type Tour = {
   id: string;
   name: string;
   destination: string;
+  destinationSlug: string;
   region: string;
   days: number;
   priceFrom: number;
   difficulty: TourDifficulty;
-  style: TourStyle;
+  styles: TourStyle[];
   groupSize: string;
   bestMonths: string[];
   highlights: string[];
@@ -22,55 +49,21 @@ export type Tour = {
   featured?: boolean;
 };
 
-export type Destination = {
-  name: string;
-  region: string;
-  note: string;
-  image: string;
-  query: string;
-};
-
-export const destinations: Destination[] = [
-  {
-    name: 'Hunza Valley',
-    region: 'Gilgit-Baltistan',
-    note: 'Rakaposhi views, apricot orchards, and Passu cones.',
-    image: 'https://picsum.photos/seed/hunza-valley-mj/900/700',
-    query: 'Hunza',
-  },
-  {
-    name: 'Skardu',
-    region: 'Gilgit-Baltistan',
-    note: 'Shangrila lake, cold desert dunes, and the K2 gateway.',
-    image: 'https://picsum.photos/seed/skardu-mj/900/700',
-    query: 'Skardu',
-  },
-  {
-    name: 'Fairy Meadows',
-    region: 'Gilgit-Baltistan',
-    note: 'Nanga Parbat base views and alpine meadow camps.',
-    image: 'https://picsum.photos/seed/fairy-meadows-mj/900/700',
-    query: 'Fairy Meadows',
-  },
-  {
-    name: 'Deosai Plains',
-    region: 'Gilgit-Baltistan',
-    note: 'High plateau wildlife, summer blooms, open sky.',
-    image: 'https://picsum.photos/seed/deosai-mj/900/700',
-    query: 'Deosai',
-  },
-];
+export function primaryStyle(tour: Tour): TourStyle {
+  return tour.styles[0];
+}
 
 export const tours: Tour[] = [
   {
     id: 'hunza-explorer',
     name: 'Hunza Explorer',
     destination: 'Hunza Valley',
+    destinationSlug: 'hunza-valley',
     region: 'Gilgit-Baltistan',
     days: 7,
     priceFrom: 89000,
     difficulty: 'Easy',
-    style: 'Valley',
+    styles: ['Valley', 'Culture', 'Women travellers'],
     groupSize: '2–12',
     bestMonths: ['April', 'May', 'June', 'September', 'October'],
     highlights: ['Karimabad', 'Attabad Lake', 'Passu Cones', 'Eagle Nest'],
@@ -84,32 +77,41 @@ export const tours: Tour[] = [
       'Local guide',
       'Daily breakfast',
     ],
-    excludes: ['Flights', 'Lunches & dinners unless noted', 'Personal expenses'],
+    excludes: [
+      'Flights',
+      'Lunches & dinners unless noted',
+      'Personal expenses',
+    ],
     itinerary: [
       {
         day: 1,
         title: 'Arrive Gilgit / drive to Hunza',
-        detail: 'Meet your host, settle into Karimabad, and ease into valley views.',
+        detail:
+          'Meet your host, settle into Karimabad, and ease into valley views.',
       },
       {
         day: 2,
         title: 'Karimabad & Baltit',
-        detail: 'Old town walks, Baltit Fort context, and sunset above the orchards.',
+        detail:
+          'Old town walks, Baltit Fort context, and sunset above the orchards.',
       },
       {
         day: 3,
         title: 'Attabad Lake',
-        detail: 'Turquoise water, boat time if conditions allow, and lakeside lunch stops.',
+        detail:
+          'Turquoise water, boat time if conditions allow, and lakeside lunch stops.',
       },
       {
         day: 4,
         title: 'Passu & upper Hunza',
-        detail: 'Passu Cones viewpoints, Hussaini bridge views, and quiet village roads.',
+        detail:
+          'Passu Cones viewpoints, Hussaini bridge views, and quiet village roads.',
       },
       {
         day: 5,
         title: 'Eagle Nest & Duikar',
-        detail: 'Classic panorama point for Rakaposhi and the Hunza ribbon below.',
+        detail:
+          'Classic panorama point for Rakaposhi and the Hunza ribbon below.',
       },
       {
         day: 6,
@@ -119,7 +121,8 @@ export const tours: Tour[] = [
       {
         day: 7,
         title: 'Return south',
-        detail: 'Drive back toward Gilgit / onward connection with buffer time.',
+        detail:
+          'Drive back toward Gilgit / onward connection with buffer time.',
       },
     ],
     image:
@@ -130,11 +133,12 @@ export const tours: Tour[] = [
     id: 'skardu-deosai',
     name: 'Skardu & Deosai',
     destination: 'Skardu',
+    destinationSlug: 'skardu',
     region: 'Gilgit-Baltistan',
     days: 8,
     priceFrom: 112000,
     difficulty: 'Moderate',
-    style: 'Adventure',
+    styles: ['Adventure', 'Valley'],
     groupSize: '2–10',
     bestMonths: ['June', 'July', 'August', 'September'],
     highlights: ['Shangrila', 'Cold Desert', 'Deosai Plains', 'Khaplu'],
@@ -153,12 +157,14 @@ export const tours: Tour[] = [
       {
         day: 1,
         title: 'Arrive Skardu',
-        detail: 'Settle in, short orientation walk, and Indus valley first views.',
+        detail:
+          'Settle in, short orientation walk, and Indus valley first views.',
       },
       {
         day: 2,
         title: 'Shangrila & Upper Kachura',
-        detail: 'Lake morning, café pause, and soft photo stops around the basin.',
+        detail:
+          'Lake morning, café pause, and soft photo stops around the basin.',
       },
       {
         day: 3,
@@ -168,7 +174,8 @@ export const tours: Tour[] = [
       {
         day: 4,
         title: 'Enter Deosai',
-        detail: 'High plateau drive, wildlife watching, and wide-sky camps or lodge.',
+        detail:
+          'High plateau drive, wildlife watching, and wide-sky camps or lodge.',
       },
       {
         day: 5,
@@ -178,7 +185,8 @@ export const tours: Tour[] = [
       {
         day: 6,
         title: 'Khaplu',
-        detail: 'Descend toward Khaplu for palace-town atmosphere and riverside quiet.',
+        detail:
+          'Descend toward Khaplu for palace-town atmosphere and riverside quiet.',
       },
       {
         day: 7,
@@ -199,14 +207,20 @@ export const tours: Tour[] = [
     id: 'fairy-meadows-trek',
     name: 'Fairy Meadows Trek',
     destination: 'Fairy Meadows',
+    destinationSlug: 'fairy-meadows',
     region: 'Gilgit-Baltistan',
     days: 5,
     priceFrom: 68000,
     difficulty: 'Moderate',
-    style: 'Trek',
+    styles: ['Trek', 'Adventure'],
     groupSize: '2–8',
     bestMonths: ['May', 'June', 'July', 'August', 'September'],
-    highlights: ['Raikot Bridge', 'Fairy Meadows', 'Beyal Camp', 'Nanga Parbat views'],
+    highlights: [
+      'Raikot Bridge',
+      'Fairy Meadows',
+      'Beyal Camp',
+      'Nanga Parbat views',
+    ],
     summary:
       'A short, high-reward trek to alpine meadows beneath Nanga Parbat — nights under clear mountain sky.',
     overview:
@@ -217,7 +231,11 @@ export const tours: Tour[] = [
       'Camping or lodge nights',
       'Trail support',
     ],
-    excludes: ['Personal trekking gear', 'Porter upgrades beyond plan', 'Flights'],
+    excludes: [
+      'Personal trekking gear',
+      'Porter upgrades beyond plan',
+      'Flights',
+    ],
     itinerary: [
       {
         day: 1,
@@ -227,7 +245,8 @@ export const tours: Tour[] = [
       {
         day: 2,
         title: 'Trek to Fairy Meadows',
-        detail: 'Forest trail ascent into the classic meadow camp beneath the peak.',
+        detail:
+          'Forest trail ascent into the classic meadow camp beneath the peak.',
       },
       {
         day: 3,
@@ -237,7 +256,8 @@ export const tours: Tour[] = [
       {
         day: 4,
         title: 'Meadow morning & descend',
-        detail: 'Sunrise light, then trek down and jeep out toward the main road.',
+        detail:
+          'Sunrise light, then trek down and jeep out toward the main road.',
       },
       {
         day: 5,
@@ -252,12 +272,13 @@ export const tours: Tour[] = [
   {
     id: 'gilgit-baltistan-grand',
     name: 'Gilgit-Baltistan Grand',
-    destination: 'Hunza Valley',
+    destination: 'Gilgit',
+    destinationSlug: 'gilgit',
     region: 'Gilgit-Baltistan',
     days: 12,
     priceFrom: 165000,
     difficulty: 'Moderate',
-    style: 'Culture',
+    styles: ['Culture', 'Valley', 'Adventure'],
     groupSize: '2–10',
     bestMonths: ['May', 'June', 'September', 'October'],
     highlights: ['Gilgit', 'Hunza', 'Skardu', 'Naltar'],
@@ -271,7 +292,11 @@ export const tours: Tour[] = [
       'Local guides',
       'Selected experiences',
     ],
-    excludes: ['Domestic flights if chosen', 'Visa fees', 'Optional activities'],
+    excludes: [
+      'Domestic flights if chosen',
+      'Visa fees',
+      'Optional activities',
+    ],
     itinerary: [
       {
         day: 1,
@@ -342,14 +367,20 @@ export const tours: Tour[] = [
     id: 'passu-cones-escape',
     name: 'Passu Cones Escape',
     destination: 'Passu',
+    destinationSlug: 'passu',
     region: 'Gilgit-Baltistan',
     days: 4,
     priceFrom: 52000,
     difficulty: 'Easy',
-    style: 'Valley',
+    styles: ['Valley', 'Women travellers'],
     groupSize: '2–8',
     bestMonths: ['April', 'May', 'June', 'September', 'October'],
-    highlights: ['Passu Cones', 'Hussaini Bridge', 'Borit Lake', 'Village walks'],
+    highlights: [
+      'Passu Cones',
+      'Hussaini Bridge',
+      'Borit Lake',
+      'Village walks',
+    ],
     summary:
       'A compact upper-Hunza escape focused on Passu’s iconic cones, bridges, and quiet village mornings.',
     overview:
@@ -390,14 +421,15 @@ export const tours: Tour[] = [
     id: 'naltar-valley-weekend',
     name: 'Naltar Valley Weekend',
     destination: 'Naltar Valley',
+    destinationSlug: 'naltar-valley',
     region: 'Gilgit-Baltistan',
     days: 3,
     priceFrom: 42000,
     difficulty: 'Easy',
-    style: 'Valley',
+    styles: ['Valley', 'Women travellers'],
     groupSize: '2–10',
     bestMonths: ['May', 'June', 'July', 'August', 'September'],
-    highlights: ['Naltar Lakes', 'Pine forests', 'Local cuisine', 'Easy walks'],
+    highlights: ['Naltar Lakes', 'Pine forests', 'Gilgit access', 'Easy walks'],
     summary:
       'A restorative long weekend among Naltar’s coloured lakes and pine-lined trails — close to Gilgit.',
     overview:
@@ -433,14 +465,20 @@ export const tours: Tour[] = [
     id: 'khaplu-heritage',
     name: 'Khaplu Heritage Trail',
     destination: 'Khaplu',
+    destinationSlug: 'khaplu',
     region: 'Gilgit-Baltistan',
     days: 6,
     priceFrom: 95000,
     difficulty: 'Easy',
-    style: 'Culture',
+    styles: ['Culture', 'Women travellers'],
     groupSize: '2–8',
     bestMonths: ['April', 'May', 'June', 'September', 'October'],
-    highlights: ['Khaplu Palace', 'Village walks', 'Shyok views', 'Local crafts'],
+    highlights: [
+      'Khaplu Palace',
+      'Village walks',
+      'Shyok views',
+      'Local crafts',
+    ],
     summary:
       'Slow travel through Baltistan’s heritage heart — palace stays energy, riverside villages, and craft stories.',
     overview:
@@ -491,14 +529,20 @@ export const tours: Tour[] = [
     id: 'astore-wilderness',
     name: 'Astore Wilderness',
     destination: 'Astore',
+    destinationSlug: 'astore',
     region: 'Gilgit-Baltistan',
     days: 7,
     priceFrom: 98000,
     difficulty: 'Challenging',
-    style: 'Trek',
+    styles: ['Trek', 'Adventure'],
     groupSize: '2–8',
     bestMonths: ['June', 'July', 'August', 'September'],
-    highlights: ['Rama Meadows', 'Mountain trails', 'River valleys', 'Remote camps'],
+    highlights: [
+      'Rama Meadows',
+      'Mountain trails',
+      'River valleys',
+      'Remote camps',
+    ],
     summary:
       'Quieter trails and wide meadows in Astore — for travellers who want fewer crowds and more altitude air.',
     overview:
@@ -509,12 +553,17 @@ export const tours: Tour[] = [
       'Mountain guide',
       'Meals on trek',
     ],
-    excludes: ['Personal trek kit', 'Emergency evacuation insurance', 'Flights'],
+    excludes: [
+      'Personal trek kit',
+      'Emergency evacuation insurance',
+      'Flights',
+    ],
     itinerary: [
       {
         day: 1,
         title: 'Into Astore',
-        detail: 'Transfer toward the valley and overnight near the trail system.',
+        detail:
+          'Transfer toward the valley and overnight near the trail system.',
       },
       {
         day: 2,
@@ -550,13 +599,6 @@ export const tours: Tour[] = [
     image:
       'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&w=1600&q=80',
   },
-];
-
-export const tourStyles: TourStyle[] = [
-  'Valley',
-  'Trek',
-  'Adventure',
-  'Culture',
 ];
 
 export const durationFilters = [
@@ -693,11 +735,54 @@ export function getRelatedTours(tour: Tour, limit = 3) {
     .filter(
       (item) =>
         item.id !== tour.id &&
-        (item.destination === tour.destination ||
-          item.style === tour.style ||
-          item.region === tour.region)
+        (item.destinationSlug === tour.destinationSlug ||
+          item.destination === tour.destination ||
+          item.styles.some((style) => tour.styles.includes(style)) ||
+          item.region === tour.region),
     )
     .slice(0, limit);
+}
+
+function destinationMatchesTour(tour: Tour, destination: Destination) {
+  const query = destination.query.toLowerCase();
+  const name = destination.name.toLowerCase();
+  return (
+    tour.destinationSlug === destination.slug ||
+    tour.destination.toLowerCase() === name ||
+    tour.name.toLowerCase().includes(query) ||
+    tour.highlights.some(
+      (highlight) =>
+        highlight.toLowerCase().includes(query) ||
+        highlight.toLowerCase().includes(name),
+    )
+  );
+}
+
+export function getToursForDestination(slug: string) {
+  const destination = getDestinationBySlug(slug);
+  if (!destination) return [];
+
+  return tours
+    .filter((tour) => destinationMatchesTour(tour, destination))
+    .sort((a, b) => {
+      const rank =
+        Number(b.destinationSlug === slug) - Number(a.destinationSlug === slug);
+      if (rank !== 0) return rank;
+      return a.priceFrom - b.priceFrom;
+    });
+}
+
+export function getToursForStyle(styleNameOrSlug: string) {
+  const style = getTravelStyleByName(styleNameOrSlug);
+  if (!style) return [];
+
+  return tours.filter((tour) => tour.styles.includes(style.name));
+}
+
+export function getDestinationsForStyle(styleNameOrSlug: string) {
+  const matching = getToursForStyle(styleNameOrSlug);
+  const slugs = new Set(matching.map((tour) => tour.destinationSlug));
+  return destinations.filter((destination) => slugs.has(destination.slug));
 }
 
 export const calendarMonths = [
@@ -729,7 +814,7 @@ const landscapePhotos = [
 export function getTourScenes(tour: Tour) {
   const offset = Math.max(
     0,
-    tours.findIndex((item) => item.id === tour.id)
+    tours.findIndex((item) => item.id === tour.id),
   );
 
   return tour.highlights.map((label, index) => ({
@@ -756,16 +841,29 @@ export function filterTours(filters: TourFilters = {}) {
       .join(' ')
       .toLowerCase();
 
+    const matchedDestination = destination
+      ? (getDestinationByName(destination) ?? getDestinationBySlug(destination))
+      : undefined;
     const matchesQuery = !query || haystack.includes(query);
     const matchesDestination =
       !destination ||
       destination === 'any' ||
       tour.destination.toLowerCase().includes(destination) ||
-      haystack.includes(destination);
+      tour.destinationSlug === destination ||
+      haystack.includes(destination) ||
+      (matchedDestination
+        ? destinationMatchesTour(tour, matchedDestination)
+        : false);
     const matchesMonth =
       !month || month === 'any' || tour.bestMonths.includes(month);
     const matchesStyle =
-      !style || style === 'any' || tour.style.toLowerCase() === style;
+      !style ||
+      style === 'any' ||
+      tour.styles.some(
+        (item) =>
+          item.toLowerCase() === style ||
+          getTravelStyleByName(item)?.slug === style,
+      );
     const matchesLength = matchesDuration(tour.days, filters.duration);
 
     return (
@@ -782,7 +880,8 @@ export function filterTours(filters: TourFilters = {}) {
     if (sort === 'price-desc') return b.priceFrom - a.priceFrom;
     if (sort === 'duration') return a.days - b.days;
     // recommended: featured first, then shorter trips as gentle default
-    const featuredDelta = Number(Boolean(b.featured)) - Number(Boolean(a.featured));
+    const featuredDelta =
+      Number(Boolean(b.featured)) - Number(Boolean(a.featured));
     if (featuredDelta !== 0) return featuredDelta;
     return a.priceFrom - b.priceFrom;
   });
@@ -791,5 +890,5 @@ export function filterTours(filters: TourFilters = {}) {
 }
 
 export function uniqueDestinations() {
-  return Array.from(new Set(tours.map((tour) => tour.destination))).sort();
+  return destinations.map((destination) => destination.name);
 }

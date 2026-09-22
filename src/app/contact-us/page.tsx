@@ -149,10 +149,10 @@ export default async function ContactUsPage({
 
                 <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm">
                   <Link
-                    href="/tour"
+                    href="/destinations"
                     className="inline-flex items-center gap-1.5 font-medium text-accent underline-offset-4 hover:underline"
                   >
-                    Browse tours
+                    Browse destinations
                     <ArrowRight size={14} aria-hidden />
                   </Link>
                   <Link
@@ -216,7 +216,7 @@ export default async function ContactUsPage({
 
               <div className="flex flex-col gap-3 border-t border-surface/15 p-6 sm:p-8 lg:border-t-0 lg:border-l lg:border-surface/15">
                 <Link
-                  href="/tour"
+                  href="/destinations"
                   className="group flex flex-1 flex-col justify-between rounded-md border border-highlight/50 bg-[rgb(197_212_168_/_0.22)] px-5 py-6 text-surface shadow-[inset_0_1px_0_rgb(255_255_255_/_0.12)] backdrop-blur-md transition-colors duration-300 hover:bg-[rgb(197_212_168_/_0.35)]"
                 >
                   <div>
@@ -224,15 +224,14 @@ export default async function ContactUsPage({
                       Browse
                     </p>
                     <h3 className="mt-2 text-xl font-medium tracking-[-0.02em]">
-                      Explore tours
+                      Explore destinations
                     </h3>
                     <p className="mt-2 text-sm leading-6 text-surface/75">
-                      Filter by destination, month, and trip length across the
-                      Mountiva collection.
+                      Open a place, then choose the package that belongs there.
                     </p>
                   </div>
                   <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-highlight">
-                    View all tours
+                    View destinations
                     <ArrowRight
                       size={15}
                       className="transition-transform duration-300 group-hover:translate-x-0.5"

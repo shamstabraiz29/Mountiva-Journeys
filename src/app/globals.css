@@ -140,6 +140,56 @@
   animation: hero-fade-up 0.9s ease-out 0.3s both;
 }
 
+@keyframes header-search-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgb(197 212 168 / 0.55);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 7px rgb(197 212 168 / 0);
+  }
+}
+
+@keyframes header-search-arrow {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  55% {
+    transform: translateX(3px);
+  }
+}
+
+.header-search-cta {
+  animation: header-search-pulse 1.8s ease-in-out infinite;
+}
+
+.header-search-cta-arrow {
+  animation: header-search-arrow 1.15s ease-in-out infinite;
+}
+
+.header-search-cta:hover,
+.header-search-cta:focus-visible,
+.group:focus-within .header-search-cta {
+  animation: none;
+  transform: scale(1.06);
+}
+
+.header-search-cta:hover .header-search-cta-arrow,
+.header-search-cta:focus-visible .header-search-cta-arrow,
+.group:focus-within .header-search-cta-arrow {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-search-cta,
+  .header-search-cta-arrow {
+    animation: none;
+  }
+}
+
 button,
 a {
   -webkit-tap-highlight-color: transparent;

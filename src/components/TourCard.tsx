@@ -66,7 +66,7 @@ export default function TourCard({
           <p className="text-[11px] font-medium tracking-[0.14em] text-highlight uppercase">
             {tour.destination}
             <span className="text-white/40"> · </span>
-            {tour.style}
+            {tour.styles[0]}
             <span className="text-white/40"> · </span>
             {formatDays(tour.days)}
           </p>

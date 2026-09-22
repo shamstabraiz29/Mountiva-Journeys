@@ -3,10 +3,11 @@ import { Leaf } from 'lucide-react';
 import { destinations } from '@/lib/tours';
 
 const holidayTypes = [
-  { href: '/tour?style=Valley', label: 'Valley journeys' },
-  { href: '/tour?style=Trek', label: 'Treks' },
-  { href: '/tour?style=Adventure', label: 'Adventure tours' },
-  { href: '/tour?style=Culture', label: 'Cultural heritage' },
+  { href: '/travel-styles/valley', label: 'Valley journeys' },
+  { href: '/travel-styles/trek', label: 'Treks' },
+  { href: '/travel-styles/adventure', label: 'Adventure tours' },
+  { href: '/travel-styles/culture', label: 'Cultural heritage' },
+  { href: '/travel-styles/women-travellers', label: 'Women travellers' },
   { href: '/contact-us', label: 'Custom trips' },
 ] as const;
 
@@ -16,6 +17,7 @@ const companyLinks = [
   { href: '/faq', label: 'Why travel with us' },
   { href: '/blogs', label: 'Blog' },
   { href: '/contact-us', label: 'Contact us' },
+  { href: '/faq', label: 'FAQ' },
 ] as const;
 
 const socialLinks = [
@@ -121,7 +123,7 @@ export default function Footer() {
 
           <div>
             <p className="text-[11px] font-medium tracking-[0.14em] text-accent uppercase">
-              Holiday types
+              Travel styles
             </p>
             <ul className="mt-4 space-y-3">
               {holidayTypes.map(({ href, label }) => (
@@ -142,19 +144,21 @@ export default function Footer() {
               Destinations
             </p>
             <ul className="mt-4 space-y-3">
-              {destinations.map(({ name, query }) => (
-                <li key={name}>
-                  <Link
-                    href={`/tour?q=${encodeURIComponent(query)}`}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    {name}
-                  </Link>
-                </li>
-              ))}
+              {destinations
+                .filter((destination) => destination.featured)
+                .map(({ name, slug }) => (
+                  <li key={slug}>
+                    <Link
+                      href={`/destinations/${slug}`}
+                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      {name}
+                    </Link>
+                  </li>
+                ))}
               <li>
                 <Link
-                  href="/tour"
+                  href="/destinations"
                   className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   All destinations

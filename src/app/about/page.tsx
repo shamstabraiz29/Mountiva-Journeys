@@ -438,7 +438,7 @@ export default function AboutPage() {
                 </div>
 
                 <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-                  <Button href="/tour" variant="highlight" size="lg">
+                  <Button href="/destinations" variant="highlight" size="lg">
                     Explore journeys
                     <ArrowRight size={16} aria-hidden />
                   </Button>

@@ -16,18 +16,18 @@ export default function DestinationCard({
   destination,
   href,
   priority,
-  ctaLabel = 'Explore tours',
+  ctaLabel = 'Explore packages',
   className,
 }: DestinationCardProps) {
-  const { name, region, note, image, query } = destination;
+  const { name, region, note, image, slug } = destination;
 
   return (
     <Link
-      href={href ?? `/tour?q=${encodeURIComponent(query)}`}
+      href={href ?? `/destinations/${slug}`}
       className={cn(
         'group relative block cursor-pointer overflow-hidden',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md',
-        className
+        className,
       )}
     >
       <div className="relative aspect-4/5 overflow-hidden bg-muted">

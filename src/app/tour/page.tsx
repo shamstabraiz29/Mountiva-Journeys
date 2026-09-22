@@ -1,13 +1,6 @@
-import type { Metadata } from 'next';
-import PageHero from '@/components/PageHero';
-import ToursExplorer from '@/components/ToursExplorer';
-import type { DurationFilter, SortOption, TourFilters } from '@/lib/tours';
-
-export const metadata: Metadata = {
-  title: 'Tours | Mountiva Journeys',
-  description:
-    'Browse guided Gilgit-Baltistan tours — Hunza, Skardu, Fairy Meadows, and more. Filter by destination, month, and trip length.',
-};
+import { redirect } from 'next/navigation';
+import { getDestinationByName, getDestinationBySlug } from '@/lib/destinations';
+import { getTravelStyleByName } from '@/lib/travel-styles';
 
 type TourPageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -18,55 +11,21 @@ function first(value: string | string[] | undefined) {
   return value;
 }
 
-function asDuration(value?: string): DurationFilter | undefined {
-  if (value === 'short' || value === 'medium' || value === 'long' || value === 'any') {
-    return value;
-  }
-  return undefined;
-}
-
-function asSort(value?: string): SortOption | undefined {
-  if (
-    value === 'recommended' ||
-    value === 'price-asc' ||
-    value === 'price-desc' ||
-    value === 'duration'
-  ) {
-    return value;
-  }
-  return undefined;
-}
-
-export default async function TourPage({ searchParams }: TourPageProps) {
+export default async function TourIndexPage({ searchParams }: TourPageProps) {
   const params = await searchParams;
+  const destinationQuery = first(params.destination) ?? first(params.q);
+  if (destinationQuery) {
+    const match =
+      getDestinationByName(destinationQuery) ??
+      getDestinationBySlug(destinationQuery);
+    if (match) redirect(`/destinations/${match.slug}`);
+  }
 
-  const initialFilters: TourFilters = {
-    q: first(params.q) ?? '',
-    destination: first(params.destination) ?? 'any',
-    month: first(params.month) ?? 'any',
-    travelers: first(params.travelers),
-    duration: asDuration(first(params.duration)) ?? 'any',
-    style: first(params.style) ?? 'any',
-    sort: asSort(first(params.sort)) ?? 'recommended',
-  };
+  const styleQuery = first(params.style);
+  if (styleQuery) {
+    const match = getTravelStyleByName(styleQuery);
+    if (match) redirect(`/travel-styles/${match.slug}`);
+  }
 
-  return (
-    <main className="min-h-screen">
-      <PageHero
-        priority
-        eyebrow="Tours · Gilgit-Baltistan"
-        title="Tours"
-        headline="Valley escapes, treks, and longer circuits — ready to filter."
-        description="Compare itineraries by destination, month, and trip length, then open any tour for the full day-by-day plan."
-        image="/images/tour-hero.jpg"
-        imageAlt="Mountain peaks and valleys of northern Pakistan"
-        navLabel="Tour sections"
-        nav={[
-          { href: '#browse', label: 'Browse' },
-          { href: '#filters', label: 'Filters' },
-        ]}
-      />
-      <ToursExplorer initialFilters={initialFilters} />
-    </main>
-  );
+  redirect('/destinations');
 }

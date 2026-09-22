@@ -11,6 +11,7 @@ import {
   Tent,
   Trees,
   TrendingUp,
+  Users,
   type LucideIcon,
 } from 'lucide-react';
 import Button from '@/components/Button';
@@ -20,18 +21,27 @@ import SeasonCard, { type Season } from '@/components/SeasonCard';
 import SectionHeader from '@/components/SectionHeader';
 import TourCard from '@/components/TourCard';
 import TrustCard from '@/components/TrustCard';
-import { destinations, getFeaturedTours } from '@/lib/tours';
+import { getFeaturedDestinations, getFeaturedTours } from '@/lib/tours';
 
 const adventureTypes: {
   label: string;
   href: string;
   icon: LucideIcon;
 }[] = [
-  { label: 'Trending trips', href: '/tour', icon: TrendingUp },
-  { label: 'Treks', href: '/tour?style=Trek', icon: Mountain },
-  { label: 'Cultural & heritage', href: '/tour?style=Culture', icon: Landmark },
-  { label: 'Adventure', href: '/tour?style=Adventure', icon: Tent },
-  { label: 'Valley journeys', href: '/tour?style=Valley', icon: Trees },
+  { label: 'Trending trips', href: '/destinations', icon: TrendingUp },
+  { label: 'Treks', href: '/travel-styles/trek', icon: Mountain },
+  {
+    label: 'Cultural & heritage',
+    href: '/travel-styles/culture',
+    icon: Landmark,
+  },
+  { label: 'Adventure', href: '/travel-styles/adventure', icon: Tent },
+  { label: 'Valley journeys', href: '/travel-styles/valley', icon: Trees },
+  {
+    label: 'Women travellers',
+    href: '/travel-styles/women-travellers',
+    icon: Users,
+  },
 ];
 
 const trustPoints = [
@@ -90,14 +100,15 @@ const seasons: Season[] = [
 ];
 
 const popularSearches = [
-  { label: 'Hunza', href: '/tour?q=Hunza' },
-  { label: 'Skardu', href: '/tour?q=Skardu' },
-  { label: 'Fairy Meadows', href: '/tour?q=Fairy+Meadows' },
-  { label: 'Deosai', href: '/tour?q=Deosai' },
+  { label: 'Gilgit', href: '/destinations/gilgit' },
+  { label: 'Hunza', href: '/destinations/hunza-valley' },
+  { label: 'Skardu', href: '/destinations/skardu' },
+  { label: 'Fairy Meadows', href: '/destinations/fairy-meadows' },
 ] as const;
 
 export default function Home() {
   const featuredTours = getFeaturedTours(4);
+  const featuredDestinations = getFeaturedDestinations();
 
   return (
     <div className="min-h-screen">
@@ -162,16 +173,19 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="adventure-types" className="bg-surface px-5 py-14 sm:px-6 sm:py-16">
+        <section
+          id="adventure-types"
+          className="bg-surface px-5 py-14 sm:px-6 sm:py-16"
+        >
           <div className="mx-auto max-w-7xl">
             <SectionHeader
               eyebrow="What we do"
               title="Choose your journey type"
-              description="Pick a style that matches how you like to travel — we will take you to the matching tours."
-              action={{ href: '/tour', label: 'View all tours' }}
+              description="Pick a style that matches how you like to travel — we will take you to the matching packages."
+              action={{ href: '/travel-styles', label: 'View travel styles' }}
             />
 
-            <div className="flex gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-5 lg:gap-4">
+            <div className="flex gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3 lg:gap-4">
               {adventureTypes.map(({ label, href, icon: Icon }, index) => (
                 <Link
                   key={label}
@@ -208,70 +222,75 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="destinations" className="bg-surface px-5 py-16 sm:px-6 sm:py-20">
+        <section
+          id="destinations"
+          className="bg-surface px-5 py-16 sm:px-6 sm:py-20"
+        >
           <div className="mx-auto max-w-7xl">
             <SectionHeader
               eyebrow="Start with place"
               title="Popular destinations"
-              description="Signature places across Gilgit-Baltistan — choose a valley or meadow, then explore matching tours."
-              action={{ href: '/tour', label: 'View all tours' }}
+              description="Signature places across Gilgit-Baltistan — choose a valley or meadow, then explore matching packages."
+              action={{ href: '/destinations', label: 'View all destinations' }}
             />
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {destinations.map((destination, index) => (
+              {featuredDestinations.map((destination, index) => (
                 <DestinationCard
                   key={destination.name}
                   destination={destination}
                   priority={index < 2}
+                  ctaLabel="Explore destination"
                 />
               ))}
             </div>
           </div>
         </section>
 
-        <section id="packages" className="bg-surface px-5 py-16 sm:px-6 sm:py-20">
+        <section
+          id="packages"
+          className="bg-surface px-5 py-16 sm:px-6 sm:py-20"
+        >
           <div className="mx-auto max-w-7xl">
             <SectionHeader
               eyebrow="Ready to book"
               title="Featured tours"
-              description="Handpicked itineraries with transport, stays, and local guides included — compare details on the tours page."
-              action={{ href: '/tour', label: 'View all tours' }}
+              description="Handpicked itineraries with transport, stays, and local guides included — pick a destination to see every package that belongs there."
+              action={{ href: '/destinations', label: 'View destinations' }}
             />
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {featuredTours.map((tour, index) => (
-                <TourCard
-                  key={tour.id}
-                  tour={tour}
-                  priority={index < 2}
-                />
+                <TourCard key={tour.id} tour={tour} priority={index < 2} />
               ))}
             </div>
           </div>
         </section>
 
-        <section id="seasons" className="bg-surface px-5 py-16 sm:px-6 sm:py-20">
+        <section
+          id="seasons"
+          className="bg-surface px-5 py-16 sm:px-6 sm:py-20"
+        >
           <div className="mx-auto max-w-7xl">
             <SectionHeader
               eyebrow="When to go"
               title="Best seasons in the north"
-              description="Pick a window that matches the landscapes you want — then browse tours already strong in that month."
-              action={{ href: '/tour', label: 'Browse by month' }}
+              description="Pick a window that matches the landscapes you want — then open a destination to see packages already strong in that season."
+              action={{ href: '/destinations', label: 'Browse destinations' }}
             />
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {seasons.map((season, index) => (
-                <SeasonCard
-                  key={season.name}
-                  season={season}
-                  index={index}
-                />
+                <SeasonCard key={season.name} season={season} index={index} />
               ))}
             </div>
           </div>
         </section>
 
-        <section id="women-travellers" className="bg-surface px-5 py-16 sm:px-6 sm:py-20">
+        <section
+          id="women-travellers"
+          className="bg-surface px-5 py-16 sm:px-6 sm:py-20"
+        >
           <div className="mx-auto max-w-7xl overflow-hidden rounded-md border border-accent/12 bg-surface">
             <div className="grid lg:grid-cols-2">
               <div className="relative min-h-[22rem] lg:min-h-full">
@@ -306,22 +325,22 @@ export default function Home() {
                   <p>
                     On a spring morning above Karimabad, a small circle of women
                     watched apricot blossom catch the first light — no rush to
-                    the next viewpoint, no need to explain why the day could move
-                    slowly.
+                    the next viewpoint, no need to explain why the day could
+                    move slowly.
                   </p>
                   <p>
-                    Mountiva&apos;s women-only journeys are shaped for that kind of
-                    travel: trusted local hosts, women-aware pacing, and room to
-                    talk, walk, and simply be among the mountains of
+                    Mountiva&apos;s women-only journeys are shaped for that kind
+                    of travel: trusted local hosts, women-aware pacing, and room
+                    to talk, walk, and simply be among the mountains of
                     Gilgit-Baltistan.
                   </p>
                 </div>
 
                 <blockquote className="mt-8 border-l-2 border-accent/30 pl-4">
                   <p className="text-base font-medium leading-7 tracking-[-0.01em] text-foreground sm:text-lg">
-                    &ldquo;I didn&apos;t want a loud group trip. I wanted to feel
-                    the valleys properly — and know I was travelling with women
-                    who understood that.&rdquo;
+                    &ldquo;I didn&apos;t want a loud group trip. I wanted to
+                    feel the valleys properly — and know I was travelling with
+                    women who understood that.&rdquo;
                   </p>
                   <footer className="mt-3 text-[13px] text-muted-foreground">
                     — Aisha, women-only Hunza departure
@@ -337,12 +356,16 @@ export default function Home() {
                 </ul>
 
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                  <Button href="/contact-us" variant="primary" size="lg">
-                    Enquire for women-only
+                  <Button
+                    href="/travel-styles/women-travellers"
+                    variant="primary"
+                    size="lg"
+                  >
+                    See women-only journeys
                     <ArrowRight size={16} aria-hidden />
                   </Button>
-                  <Button href="/tour?q=Hunza" variant="secondary" size="lg">
-                    See Hunza journeys
+                  <Button href="/contact-us" variant="secondary" size="lg">
+                    Enquire for women-only
                   </Button>
                 </div>
               </div>
@@ -382,10 +405,7 @@ export default function Home() {
               sizes="(max-width:1280px) 100vw, 1280px"
               aria-hidden
             />
-            <div
-              aria-hidden
-              className="absolute inset-0 bg-accent/72"
-            />
+            <div aria-hidden className="absolute inset-0 bg-accent/72" />
             <div
               aria-hidden
               className="absolute inset-0 bg-[linear-gradient(90deg,rgb(12_20_16/0.35)_0%,transparent_55%)]"
@@ -401,9 +421,9 @@ export default function Home() {
                     Find your northern route
                   </h2>
                   <p className="mt-4 max-w-md text-sm leading-6 text-surface/80 sm:text-[15px]">
-                    Choose a ready itinerary from the collection, or tell us your
-                    dates and pace — we&apos;ll shape a private journey through
-                    Gilgit-Baltistan.
+                    Choose a ready itinerary from the collection, or tell us
+                    your dates and pace — we&apos;ll shape a private journey
+                    through Gilgit-Baltistan.
                   </p>
                 </div>
 
@@ -418,7 +438,7 @@ export default function Home() {
 
               <div className="flex flex-col gap-3 border-t border-surface/15 p-6 sm:p-8 lg:border-t-0 lg:border-l lg:border-surface/15">
                 <Link
-                  href="/tour"
+                  href="/destinations"
                   className="group flex flex-1 flex-col justify-between rounded-md border border-highlight/50 bg-[rgb(197_212_168_/_0.22)] px-5 py-6 text-surface shadow-[inset_0_1px_0_rgb(255_255_255_/_0.12)] backdrop-blur-md transition-colors duration-300 hover:bg-[rgb(197_212_168_/_0.35)]"
                 >
                   <div>
@@ -426,15 +446,15 @@ export default function Home() {
                       Browse
                     </p>
                     <h3 className="mt-2 text-xl font-medium tracking-[-0.02em]">
-                      Explore tours
+                      Explore destinations
                     </h3>
                     <p className="mt-2 text-sm leading-6 text-surface/75">
-                      Filter by destination, month, and trip length across the
-                      full Mountiva collection.
+                      Open a place, then choose the package that belongs there —
+                      full itineraries sit behind each card.
                     </p>
                   </div>
                   <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-highlight">
-                    View all tours
+                    View destinations
                     <ArrowRight
                       size={15}
                       className="transition-transform duration-300 group-hover:translate-x-0.5"

@@ -10,6 +10,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { faqGroups } from '@/lib/faq';
 
 export const metadata: Metadata = {
   title: 'FAQ | Mountiva Journeys',
@@ -33,67 +34,6 @@ const topics = [
   {
     title: 'On the trail',
     body: 'Fitness, permits, and what to expect day to day.',
-  },
-] as const;
-
-const faqGroups = [
-  {
-    id: 'places',
-    label: 'Places & seasons',
-    items: [
-      {
-        question: 'Which destinations does Mountiva cover in Pakistan?',
-        answer:
-          'We specialise in Gilgit-Baltistan — Hunza Valley, Skardu, Fairy Meadows, Deosai Plains, Naltar, Khaplu, Passu, and Astore — with custom routes across northern Pakistan.',
-      },
-      {
-        question: 'When is the best time to visit Gilgit-Baltistan?',
-        answer:
-          'April to June brings spring blooms and milder roads. July to August is peak summer for high meadows like Deosai. September to October offers clear mountain light and fewer crowds.',
-      },
-    ],
-  },
-  {
-    id: 'trips',
-    label: 'Trips & inclusions',
-    items: [
-      {
-        question: 'Are your packages private or group trips?',
-        answer:
-          'Both. Choose a ready-made package or ask for a private itinerary. Small groups stay intimate; custom trips can be tailored for couples, families, or friends.',
-      },
-      {
-        question: 'What is usually included in a package?',
-        answer:
-          'Most packages include transport, stays, and local guides. Meals, entry fees, and optional activities vary by trip — full details are listed on each package page.',
-      },
-      {
-        question: 'Can you plan a custom Hunza or Skardu itinerary?',
-        answer:
-          'Yes. Share your dates, group size, and interests — valleys, trekking, culture, or photography — and we will shape a route with stays and logistics that fit.',
-      },
-    ],
-  },
-  {
-    id: 'practical',
-    label: 'Practical details',
-    items: [
-      {
-        question: 'Do I need a permit for Fairy Meadows or Deosai?',
-        answer:
-          'Some areas require local permits or registration. We arrange these for you when they are part of your itinerary so you can focus on the journey.',
-      },
-      {
-        question: 'How fit do I need to be for these trips?',
-        answer:
-          'Most journeys suit active travellers comfortable with day walks of 4–6 hours. Trek-focused trips like Fairy Meadows need stronger legs and steady footing; we can adjust pace on request.',
-      },
-      {
-        question: 'How do I book or ask a question?',
-        answer:
-          'Browse packages from the home search, or contact us with your preferred destinations and travel month. We reply with options and next steps.',
-      },
-    ],
   },
 ] as const;
 
@@ -278,7 +218,7 @@ export default function FaqPage() {
                 </Link>
 
                 <Link
-                  href="/tour"
+                    href="/destinations"
                   className="group flex flex-1 flex-col justify-between rounded-md border border-surface/25 bg-surface/15 px-5 py-6 text-surface backdrop-blur-md transition-colors duration-300 hover:bg-surface/25"
                 >
                   <div>
@@ -286,15 +226,14 @@ export default function FaqPage() {
                       Browse
                     </p>
                     <h3 className="mt-2 text-xl font-medium tracking-[-0.02em]">
-                      Explore tours
+                      Explore destinations
                     </h3>
                     <p className="mt-2 text-sm leading-6 text-surface/75">
-                      Compare valley escapes, treks, and longer circuits across
-                      the Mountiva collection.
+                      Open a place, then choose the package that belongs there.
                     </p>
                   </div>
                   <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-highlight">
-                    View all tours
+                    View destinations
                     <ArrowRight
                       size={15}
                       className="transition-transform duration-300 group-hover:translate-x-0.5"

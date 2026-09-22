@@ -27,16 +27,9 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
-const destinations = [
-  'Hunza Valley',
-  'Skardu',
-  'Fairy Meadows',
-  'Naltar Valley',
-  'Deosai Plains',
-  'Khaplu',
-  'Passu',
-  'Astore',
-] as const;
+import { destinations, resolveDestinationPath } from '@/lib/destinations';
+
+const destinationNames = destinations.map((place) => place.name);
 
 const months = [
   { value: 'any', label: 'Any month' },
@@ -95,8 +88,10 @@ function DestinationSearch({
 
   const filtered = useMemo(() => {
     const query = value.trim().toLowerCase();
-    if (!query) return destinations;
-    return destinations.filter((place) => place.toLowerCase().includes(query));
+    if (!query) return destinationNames;
+    return destinationNames.filter((place) =>
+      place.toLowerCase().includes(query),
+    );
   }, [value]);
 
   return (
@@ -167,11 +162,7 @@ export default function HeroSearch() {
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const params = new URLSearchParams();
-    if (destination.trim()) params.set('q', destination.trim());
-    if (month && month !== 'any') params.set('month', month);
-    if (travelers) params.set('travelers', travelers);
-    router.push(`/tour?${params.toString()}`);
+    router.push(resolveDestinationPath(destination));
   }
 
   return (
