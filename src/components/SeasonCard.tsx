@@ -13,7 +13,6 @@ export type Season = {
   tone?: 'spring' | 'summer' | 'autumn' | 'winter';
   /** When set, CTA uses this instead of /destinations */
   href?: string;
-  href?: string;
   ctaLabel?: string;
 };
 
